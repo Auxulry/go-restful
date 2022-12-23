@@ -1,0 +1,81 @@
+run:
+  timeout: 5m
+
+linters-settings:
+  dupl:
+    threshold: 100
+
+  gocyclo:
+    min-complexity: 20
+
+  gofmt:
+    simplify: true
+
+    rewrite-rules:
+      - pattern: 'a[b:len(a)]'
+        replacement: 'a[b:]'
+
+  govet:
+    check-shadowing: false
+
+  lll:
+    line-length: 150
+    tab-width: 1
+
+  misspell:
+    locale: US
+
+  revive:
+    rules:
+      - name: package-comments
+        disabled: true
+
+  stylecheck:
+    check: ["all", "-ST1000"]
+
+linters:
+  enable:
+    - bodyclose
+    - containedctx
+    - contextcheck
+    - depguard
+    - dogsled
+    - dupl
+    - errorlint
+    - errcheck
+    - exhaustive
+    - funlen
+    - gci
+    - gofmt
+    - gofumpt
+    - gomnd
+    - goprintffuncname
+    - gosec
+    - gosimple
+    - govet
+    - ineffassign
+    - lll
+    - misspell
+    - nakedret
+    - nestif
+    - noctx
+    - nolintlint
+    - prealloc
+    - revive
+    - rowserrcheck
+    - staticcheck
+    - stylecheck
+    - typecheck
+    - unconvert
+    - unused
+    - unparam
+    - whitespace
+
+issues:
+  exclude-use-default: false
+  exclude-rules:
+    - path: _test\.go
+      linters:
+        - lll
+        - funlen
+        - dupl

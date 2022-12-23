@@ -1,0 +1,145 @@
+openapi: 3.0.3
+info:
+  title: Go RESTful + JWT
+  description: Go RESTful + JWT
+  version: 1.0.0
+servers:
+  - url: 'http://localhost:5000'
+paths:
+  /api/register:
+    post:
+      tags:
+        - Auth API
+      description: Register User
+      summary: Register User
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                email:
+                  type: string
+                password:
+                  type: string
+  
+      responses:
+        201:
+          description: Success Register User
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: number
+                  status:
+                    type: string
+                  data:
+                    $ref: "#/components/schemas/authResponse"
+        400:
+          description: Missing Request Register
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/errorResponse"
+        422:
+          description: Validation Request Register
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: number
+                  status:
+                    type: string
+                  errors:
+                    type: object
+                    properties:
+                      name:
+                        type: array
+                        items:
+                          type: string
+                      email:
+                        type: array
+                        items:
+                          type: string
+                      password:
+                        type: array
+                        items:
+                          type: string
+        500:
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/errorResponse"
+  /api/login:
+    post:
+      tags:
+        - Auth API
+      description: Login User
+      summary: Login User
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                password:
+                  type: string
+      responses:
+        200:
+          description: Success Register User
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: number
+                  status:
+                    type: string
+                  data:
+                    $ref: "#/components/schemas/authResponse"
+        400:
+          description: Missing Request Login
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/errorResponse"
+        401:
+          description: Invalid Request Credentials
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/errorResponse"
+        500:
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/errorResponse"
+components:
+  schemas:
+    authResponse:
+      type: object
+      properties:
+        user_id:
+          type: string
+        token:
+          type: string
+    errorResponse:
+      type: object
+      properties:
+        code:
+          type: number
+        status:
+          type: string
+        message:
+          type: string
