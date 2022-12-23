@@ -79,3 +79,5 @@ issues:
         - lll
         - funlen
         - dupl
+        - ineffassign
+        - staticcheck
