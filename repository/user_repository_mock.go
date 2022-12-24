@@ -3,7 +3,6 @@ package repository
 import (
 	"context"
 
-	"github.com/MochamadAkbar/go-restful/api"
 	"github.com/MochamadAkbar/go-restful/entity"
 	"github.com/stretchr/testify/mock"
 )
@@ -22,7 +21,7 @@ func (repository *UserRepositoryMock) Register(ctx context.Context, user *entity
 	}
 }
 
-func (repository *UserRepositoryMock) Login(ctx context.Context, user *api.UserRequest) (string, bool) {
+func (repository *UserRepositoryMock) Login(ctx context.Context, user *entity.User) (string, bool) {
 	args := repository.Mock.Called(ctx, user)
 
 	if args.Get(0) == nil {
