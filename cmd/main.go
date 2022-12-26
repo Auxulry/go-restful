@@ -9,6 +9,9 @@ import (
 
 	"github.com/MochamadAkbar/go-restful/common"
 	"github.com/MochamadAkbar/go-restful/config"
+	"github.com/MochamadAkbar/go-restful/handler"
+	"github.com/MochamadAkbar/go-restful/repository"
+	"github.com/MochamadAkbar/go-restful/usecase"
 )
 
 const (
@@ -38,6 +41,10 @@ func main() {
 	router.Get("/", func(w http.ResponseWriter, r *http.Request) {
 		_, _ = w.Write([]byte("Hello World"))
 	})
+
+	userRepository := repository.InitRepository(db)
+	userUsecase := usecase.InitUseCase(userRepository)
+	handler.InitHandler(userUsecase, router)
 
 	server := &http.Server{
 		Addr:           "localhost:5000",

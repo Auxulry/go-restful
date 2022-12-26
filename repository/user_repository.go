@@ -14,7 +14,11 @@ type IUserRepository interface {
 }
 
 type UserRepository struct {
-	Conn *pgxpool.Conn
+	Conn *pgxpool.Pool
+}
+
+func InitRepository(conn *pgxpool.Pool) *UserRepository {
+	return &UserRepository{Conn: conn}
 }
 
 func (repository *UserRepository) Register(ctx context.Context, user *entity.User) bool {
@@ -28,13 +32,13 @@ func (repository *UserRepository) Register(ctx context.Context, user *entity.Use
 }
 
 func (repository *UserRepository) Login(ctx context.Context, user *entity.User) (string, bool) {
-	statement := `SELECT "uuid" FROM "users" WHERE "email" = $1;`
-	var UUID string
+	statement := `SELECT "id" FROM "users" WHERE "email" = $1;`
+	var ID string
 	err := repository.Conn.QueryRow(ctx, statement, user.Email).
-		Scan(&UUID)
+		Scan(&ID)
 	if err != nil {
 		panic(err)
 	}
 
-	return UUID, true
+	return ID, true
 }
