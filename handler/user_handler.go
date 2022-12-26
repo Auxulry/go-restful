@@ -2,10 +2,10 @@
 package handler
 
 import (
-	"encoding/json"
 	"net/http"
 
 	"github.com/MochamadAkbar/go-restful/api"
+	"github.com/MochamadAkbar/go-restful/common"
 	"github.com/MochamadAkbar/go-restful/entity"
 	"github.com/MochamadAkbar/go-restful/usecase"
 	"github.com/go-chi/chi/v5"
@@ -33,12 +33,16 @@ func InitHandler(usecase usecase.IUserUsecase, router *chi.Mux) IUserHandler {
 
 func (handler *UserHandler) Register(w http.ResponseWriter, r *http.Request) {
 	var req api.UserRequest
+	res := api.Response{
+		Code:   http.StatusCreated,
+		Status: http.StatusText(http.StatusCreated),
+	}
 
-	decoder := json.NewDecoder(r.Body)
-	err := decoder.Decode(&req)
+	err := common.SerializeRequest(r, &req)
 	if err != nil {
 		panic(err)
 	}
+
 	user := &entity.User{
 		Name:     req.Name,
 		Email:    req.Email,
@@ -48,9 +52,10 @@ func (handler *UserHandler) Register(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		panic(err)
 	}
-	w.Header().Add("Content-Type", "application/json")
-	encoder := json.NewEncoder(w)
-	err = encoder.Encode(resp)
+
+	res.Data = resp
+
+	err = common.SerializeWriter(w, res.Code, res)
 	if err != nil {
 		panic(err)
 	}
@@ -58,9 +63,12 @@ func (handler *UserHandler) Register(w http.ResponseWriter, r *http.Request) {
 
 func (handler *UserHandler) Login(w http.ResponseWriter, r *http.Request) {
 	var req api.UserRequest
+	res := api.Response{
+		Code:   http.StatusOK,
+		Status: http.StatusText(http.StatusOK),
+	}
 
-	decoder := json.NewDecoder(r.Body)
-	err := decoder.Decode(&req)
+	err := common.SerializeRequest(r, &req)
 	if err != nil {
 		panic(err)
 	}
@@ -72,9 +80,8 @@ func (handler *UserHandler) Login(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		panic(err)
 	}
-	w.Header().Add("Content-Type", "application/json")
-	encoder := json.NewEncoder(w)
-	err = encoder.Encode(resp)
+	res.Data = resp
+	err = common.SerializeWriter(w, res.Code, res)
 	if err != nil {
 		panic(err)
 	}
