@@ -1,6 +1,7 @@
 package api
 
 type UserResponse struct {
-	UUID  string
-	Token string
+	UserID    string `json:"user_id"`
+	Token     string `json:"token"`
+	ExpiresIn int64  `json:"expires_in"`
 }
