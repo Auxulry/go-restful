@@ -31,12 +31,12 @@ func TestUserUsecase_Register(t *testing.T) {
 
 		result, err := userUsecase.Register(ctx, user)
 
-		resp.UUID = result.UUID
+		resp.UserID = result.UserID
 		resp.Token = result.Token
 
 		assert.Nil(t, err)
-		assert.Equal(t, "UUID", resp.UUID)
-		assert.Equal(t, "Token", resp.Token)
+		assert.Equal(t, "UUID", resp.UserID)
+		assert.NotEqual(t, "", resp.Token)
 	})
 
 	t.Run("Test User Use Case Register Failed", func(t *testing.T) {
@@ -51,7 +51,7 @@ func TestUserUsecase_Register(t *testing.T) {
 		result, err := userUsecase.Register(ctx, user)
 
 		assert.NotNil(t, err)
-		assert.Equal(t, resp.UUID, result.UUID)
+		assert.Equal(t, resp.UserID, result.UserID)
 		assert.Equal(t, resp.Token, result.Token)
 	})
 }
@@ -71,12 +71,12 @@ func TestUserUsecase_Login(t *testing.T) {
 
 		result, err := userUsecase.Login(ctx, user)
 
-		resp.UUID = result.UUID
+		resp.UserID = result.UserID
 		resp.Token = result.Token
 
 		assert.Nil(t, err)
-		assert.Equal(t, "UUID", resp.UUID)
-		assert.Equal(t, "Token", resp.Token)
+		assert.Equal(t, "UUID", resp.UserID)
+		assert.NotEqual(t, "", resp.Token)
 	})
 
 	t.Run("Test User use case Login Fail", func(t *testing.T) {
@@ -90,7 +90,7 @@ func TestUserUsecase_Login(t *testing.T) {
 		result, err := userUsecase.Login(ctx, user)
 
 		assert.NotNil(t, err)
-		assert.Equal(t, resp.UUID, result.UUID)
+		assert.Equal(t, resp.UserID, result.UserID)
 		assert.Equal(t, resp.Token, result.Token)
 	})
 }
