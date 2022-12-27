@@ -34,8 +34,8 @@ func InitUseCase(repository repository.IUserRepository) *UserUsecase {
 }
 
 func (usecase *UserUsecase) Register(ctx context.Context, user *entity.User) (api.UserResponse, error) {
-	var expiresIn = time.Now().Add(time.Duration(1) * time.Minute).Unix()
-	
+	expiresIn := time.Now().Add(time.Duration(1) * time.Minute).Unix()
+
 	var resp api.UserResponse
 
 	hash, err := bcrypt.GenerateFromPassword([]byte(user.Password), Salt)
@@ -76,7 +76,7 @@ func (usecase *UserUsecase) Register(ctx context.Context, user *entity.User) (ap
 }
 
 func (usecase *UserUsecase) Login(ctx context.Context, user *entity.User) (api.UserResponse, error) {
-	var expiresIn = time.Now().Add(time.Duration(1) * time.Minute).Unix()
+	expiresIn := time.Now().Add(time.Duration(1) * time.Minute).Unix()
 
 	var resp api.UserResponse
 

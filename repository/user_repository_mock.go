@@ -12,7 +12,7 @@ type UserRepositoryMock struct {
 }
 
 func (repository *UserRepositoryMock) Register(ctx context.Context, user *entity.User) bool {
-	args := repository.Mock.Called(ctx, user)
+	args := repository.Mock.Called(user)
 
 	if args.Get(0) == nil {
 		return false
@@ -22,7 +22,7 @@ func (repository *UserRepositoryMock) Register(ctx context.Context, user *entity
 }
 
 func (repository *UserRepositoryMock) Login(ctx context.Context, user *entity.User) (string, bool) {
-	args := repository.Mock.Called(ctx, user)
+	args := repository.Mock.Called(user)
 
 	if args.Get(0) == nil {
 		return "", false
