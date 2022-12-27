@@ -11,9 +11,10 @@ import (
 	"github.com/stretchr/testify/mock"
 )
 
-var userRepositoryMock = &repository.UserRepositoryMock{Mock: mock.Mock{}}
-
-var userUsecase = UserUsecase{Repository: userRepositoryMock}
+var (
+	userUsecase        = UserUsecase{Repository: userRepositoryMock}
+	userRepositoryMock = &repository.UserRepositoryMock{Mock: mock.Mock{}}
+)
 
 func TestUserUsecase_Register(t *testing.T) {
 	t.Run("Test User Use Case Register Success", func(t *testing.T) {
@@ -26,8 +27,8 @@ func TestUserUsecase_Register(t *testing.T) {
 		user.Name = "John Doe"
 		user.Email = "johndoe@gmail.com"
 
-		userRepositoryMock.Mock.On("Register", ctx, user).Return(true)
-		userRepositoryMock.Mock.On("Login", ctx, user).Return("UUID", true)
+		userRepositoryMock.Mock.On("Register", user).Return(true)
+		userRepositoryMock.Mock.On("Login", user).Return("UUID", true)
 
 		result, err := userUsecase.Register(ctx, user)
 
@@ -45,8 +46,8 @@ func TestUserUsecase_Register(t *testing.T) {
 
 		user := new(entity.User)
 
-		userRepositoryMock.Mock.On("Register", ctx, user).Return(nil)
-		userRepositoryMock.Mock.On("Login", ctx, user).Return(nil)
+		userRepositoryMock.Mock.On("Register", user).Return(nil)
+		userRepositoryMock.Mock.On("Login", user).Return(nil)
 
 		result, err := userUsecase.Register(ctx, user)
 
@@ -67,7 +68,7 @@ func TestUserUsecase_Login(t *testing.T) {
 		user.Email = "johndoe@gmail.com"
 		user.Password = "test"
 
-		userRepositoryMock.Mock.On("Login", ctx, user).Return("UUID", true)
+		userRepositoryMock.Mock.On("Login", user).Return("UUID", true)
 
 		result, err := userUsecase.Login(ctx, user)
 
@@ -85,7 +86,7 @@ func TestUserUsecase_Login(t *testing.T) {
 
 		user := new(entity.User)
 
-		userRepositoryMock.Mock.On("Login", ctx, user).Return(nil)
+		userRepositoryMock.Mock.On("Login", user).Return(nil)
 
 		result, err := userUsecase.Login(ctx, user)
 
