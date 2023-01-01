@@ -25,7 +25,7 @@ func (repository *UserRepository) Register(ctx context.Context, user *entity.Use
 	statement := `INSERT INTO "users" ("name", "email", "password") VALUES($1, $2, $3);`
 	_, err := repository.Conn.Exec(ctx, statement, user.Name, user.Email, user.Password)
 	if err != nil {
-		panic(err)
+		panic(err.Error())
 	}
 
 	return true
@@ -37,7 +37,7 @@ func (repository *UserRepository) Login(ctx context.Context, user *entity.User) 
 	err := repository.Conn.QueryRow(ctx, statement, user.Email).
 		Scan(&ID)
 	if err != nil {
-		panic(err)
+		panic(err.Error())
 	}
 
 	return ID, true
