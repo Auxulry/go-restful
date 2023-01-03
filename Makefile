@@ -6,10 +6,13 @@ build:
 	go build -o deploy/engine ./cmd
 .PHONY: build
 
-test:
-	go test -v ./...
-.PHONY: test
+inject:
+	cd injector && wire
 
 lint:
 	golangci-lint run ./...
 .PHONY: lint
+
+test:
+	go test -v ./...
+.PHONY: test

@@ -17,7 +17,7 @@ type UserRepository struct {
 	Conn *pgxpool.Pool
 }
 
-func InitRepository(conn *pgxpool.Pool) *UserRepository {
+func NewUserRepository(conn *pgxpool.Pool) IUserRepository {
 	return &UserRepository{Conn: conn}
 }
 
