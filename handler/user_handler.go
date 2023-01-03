@@ -20,7 +20,7 @@ type UserHandler struct {
 	Usecase usecase.IUserUsecase
 }
 
-func InitHandler(usecase usecase.IUserUsecase, router *chi.Mux) IUserHandler {
+func NewUserHandler(usecase usecase.IUserUsecase, router *chi.Mux) http.Handler {
 	handler := &UserHandler{
 		Usecase: usecase,
 	}
@@ -28,7 +28,7 @@ func InitHandler(usecase usecase.IUserUsecase, router *chi.Mux) IUserHandler {
 	router.Post("/api/register", handler.Register)
 	router.Post("/api/login", handler.Login)
 
-	return handler
+	return router
 }
 
 func (handler *UserHandler) Register(w http.ResponseWriter, r *http.Request) {

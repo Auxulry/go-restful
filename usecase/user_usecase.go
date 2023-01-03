@@ -27,7 +27,7 @@ type UserUsecase struct {
 	Repository repository.IUserRepository
 }
 
-func InitUseCase(repository repository.IUserRepository) *UserUsecase {
+func NewUserUsecase(repository repository.IUserRepository) IUserUsecase {
 	return &UserUsecase{
 		Repository: repository,
 	}

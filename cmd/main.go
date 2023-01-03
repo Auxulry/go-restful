@@ -4,21 +4,10 @@ import (
 	"context"
 	"fmt"
 	"log"
-	"net/http"
-	"time"
 
 	"github.com/MochamadAkbar/go-restful/common"
 	"github.com/MochamadAkbar/go-restful/config"
-	"github.com/MochamadAkbar/go-restful/handler"
-	"github.com/MochamadAkbar/go-restful/repository"
-	"github.com/MochamadAkbar/go-restful/usecase"
-)
-
-const (
-	Addr           = ":5000"
-	ReadTimeout    = 10 * time.Second
-	WriteTimeout   = 10 * time.Second
-	MaxHeaderBytes = 1 << 20
+	"github.com/MochamadAkbar/go-restful/injector"
 )
 
 const (
@@ -33,29 +22,13 @@ func main() {
 	ctx := context.Background()
 	url := fmt.Sprintf("postgres://%s:%s@%s:%s/%s", Username, Password, Hostname, Port, Dbname)
 
-	db := config.InitDB(ctx, url)
+	db := config.NewDB(ctx, url)
 	defer db.Close()
 
-	router := config.NewRouter()
-
-	router.Get("/", func(w http.ResponseWriter, r *http.Request) {
-		_, _ = w.Write([]byte("Hello World"))
-	})
-
-	userRepository := repository.InitRepository(db)
-	userUsecase := usecase.InitUseCase(userRepository)
-	handler.InitHandler(userUsecase, router)
-
-	server := &http.Server{
-		Addr:           "localhost:5000",
-		Handler:        router,
-		ReadTimeout:    ReadTimeout,
-		WriteTimeout:   WriteTimeout,
-		MaxHeaderBytes: MaxHeaderBytes,
-	}
+	server := injector.InitializeServer(db)
 
 	badge := common.MessageColorized(common.Green, "ready")
-	msg := fmt.Sprintf("[%s] started serve on [::]%s", badge, Addr)
+	msg := fmt.Sprintf("[%s] started serve on [::]%s", badge, ":5000")
 	fmt.Println(msg)
 	if err := server.ListenAndServe(); err != nil {
 		badge = common.MessageColorized(common.Red, "stop")
