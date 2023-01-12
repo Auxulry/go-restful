@@ -7,21 +7,18 @@
 package injector
 
 import (
-	"github.com/MochamadAkbar/go-restful/config"
 	"github.com/MochamadAkbar/go-restful/handler"
 	"github.com/MochamadAkbar/go-restful/repository"
 	"github.com/MochamadAkbar/go-restful/usecase"
+	"github.com/go-chi/chi/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
-	"net/http"
 )
 
 // Injectors from dependency.go:
 
-func InitializeServer(conn *pgxpool.Pool) *http.Server {
+func InitializeUserService(conn *pgxpool.Pool, router chi.Router) error {
 	iUserRepository := repository.NewUserRepository(conn)
 	iUserUsecase := usecase.NewUserUsecase(iUserRepository)
-	mux := config.NewRouter()
-	httpHandler := handler.NewUserHandler(iUserUsecase, mux)
-	server := config.NewServer(httpHandler)
-	return server
+	error2 := handler.NewUserHandler(iUserUsecase, router)
+	return error2
 }

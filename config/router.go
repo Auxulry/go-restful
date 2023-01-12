@@ -2,16 +2,15 @@
 package config
 
 import (
-	"github.com/MochamadAkbar/go-restful/exception"
+	"github.com/MochamadAkbar/go-restful/middleware"
 	"github.com/go-chi/chi/v5"
-	"github.com/go-chi/chi/v5/middleware"
 )
 
 func NewRouter() *chi.Mux {
 	router := chi.NewRouter()
 
-	router.Use(middleware.Logger)
-	router.Use(exception.ErrorHandler)
+	router.Use(middleware.CORS)
+	router.Use(middleware.Recovery)
 
 	return router
 }

@@ -14,7 +14,7 @@ import (
 )
 
 var (
-	userHandler = UserHandler{Usecase: userUsecase}
+	userHandler = UserHandlerImpl{Usecase: userUsecase}
 	userUsecase = &usecase.UserUsecaseMock{Mock: mock.Mock{}}
 )
 

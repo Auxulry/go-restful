@@ -1,5 +1,5 @@
 debug:
-	go run cmd/main.go
+	go run cmd/server/main.go
 .PHONY: debug
 
 build:
@@ -7,7 +7,7 @@ build:
 .PHONY: build
 
 inject:
-	cd injector && wire
+	wire github.com/MochamadAkbar/go-restful/injector
 
 lint:
 	golangci-lint run ./...
