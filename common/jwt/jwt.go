@@ -1,4 +1,5 @@
-package common
+// Package jwt is utilities for used jwt
+package jwt
 
 import (
 	"errors"

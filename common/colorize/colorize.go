@@ -1,5 +1,5 @@
-// Package common describe common utilities
-package common
+// Package colorize is utilities for colorize script
+package colorize
 
 import "fmt"
 

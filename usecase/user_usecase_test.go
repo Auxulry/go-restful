@@ -12,7 +12,7 @@ import (
 )
 
 var (
-	userUsecase        = UserUsecase{Repository: userRepositoryMock}
+	userUsecase        = UserUsecaseImpl{Repository: userRepositoryMock}
 	userRepositoryMock = &repository.UserRepositoryMock{Mock: mock.Mock{}}
 )
 
