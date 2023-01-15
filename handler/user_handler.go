@@ -5,84 +5,96 @@ import (
 	"net/http"
 
 	"github.com/MochamadAkbar/go-restful/api"
-	"github.com/MochamadAkbar/go-restful/common"
+	commonErr "github.com/MochamadAkbar/go-restful/common/errors"
+	"github.com/MochamadAkbar/go-restful/common/serializer"
 	"github.com/MochamadAkbar/go-restful/entity"
 	"github.com/MochamadAkbar/go-restful/usecase"
 	"github.com/go-chi/chi/v5"
 )
 
-type IUserHandler interface {
+type UserHandler interface {
 	Register(w http.ResponseWriter, r *http.Request)
 	Login(w http.ResponseWriter, r *http.Request)
 }
 
-type UserHandler struct {
-	Usecase usecase.IUserUsecase
+type UserHandlerImpl struct {
+	Usecase usecase.UserUsecase
 }
 
-func InitHandler(usecase usecase.IUserUsecase, router *chi.Mux) IUserHandler {
-	handler := &UserHandler{
+func NewUserHandler(usecase usecase.UserUsecase, router chi.Router) error {
+	handler := &UserHandlerImpl{
 		Usecase: usecase,
 	}
 
-	router.Post("/api/register", handler.Register)
-	router.Post("/api/login", handler.Login)
+	router.Post("/authentication/register", handler.Register)
+	router.Post("/authentication/login", handler.Login)
 
-	return handler
+	return nil
 }
 
-func (handler *UserHandler) Register(w http.ResponseWriter, r *http.Request) {
+func (handler *UserHandlerImpl) Register(w http.ResponseWriter, r *http.Request) {
 	var req api.UserRequest
-	res := api.Response{
-		Code:   http.StatusCreated,
-		Status: http.StatusText(http.StatusCreated),
-	}
 
-	err := common.SerializeRequest(r, &req)
-	if err != nil {
-		panic(err)
-	}
+	serializer.SerializeRequest(r, &req)
 
 	user := &entity.User{
 		Name:     req.Name,
 		Email:    req.Email,
 		Password: req.Password,
 	}
+
+	defer serializer.SerializeCloseRequest(r)
+
 	resp, err := handler.Usecase.Register(r.Context(), user)
 	if err != nil {
-		panic(err)
+		result := api.ErrResponse{
+			Code:    commonErr.GetHTTPCode(err),
+			Status:  http.StatusText(commonErr.GetHTTPCode(err)),
+			Message: err.Error(),
+		}
+
+		serializer.SerializeWriter(w, result.Code, result)
+		return
 	}
 
-	res.Data = resp
-
-	err = common.SerializeWriter(w, res.Code, res)
-	if err != nil {
-		panic(err)
+	result := api.Response{
+		Code:   http.StatusCreated,
+		Status: http.StatusText(http.StatusCreated),
+		Data:   resp,
 	}
+
+	serializer.SerializeWriter(w, result.Code, result)
 }
 
-func (handler *UserHandler) Login(w http.ResponseWriter, r *http.Request) {
+func (handler *UserHandlerImpl) Login(w http.ResponseWriter, r *http.Request) {
 	var req api.UserRequest
-	res := api.Response{
-		Code:   http.StatusOK,
-		Status: http.StatusText(http.StatusOK),
-	}
 
-	err := common.SerializeRequest(r, &req)
-	if err != nil {
-		panic(err)
-	}
+	serializer.SerializeRequest(r, &req)
+
 	user := &entity.User{
 		Email:    req.Email,
 		Password: req.Password,
 	}
+
+	defer serializer.SerializeCloseRequest(r)
+
 	resp, err := handler.Usecase.Login(r.Context(), user)
 	if err != nil {
-		panic(err)
+		result := api.ErrResponse{
+			Code:    commonErr.GetHTTPCode(err),
+			Status:  http.StatusText(commonErr.GetHTTPCode(err)),
+			Message: err.Error(),
+		}
+
+		serializer.SerializeWriter(w, result.Code, result)
+		return
 	}
-	res.Data = resp
-	err = common.SerializeWriter(w, res.Code, res)
-	if err != nil {
-		panic(err)
+
+	result := api.Response{
+		Code:   http.StatusOK,
+		Status: http.StatusText(http.StatusOK),
+		Data:   resp,
 	}
+
+	serializer.SerializeWriter(w, result.Code, result)
 }

@@ -3,12 +3,14 @@ package usecase
 
 import (
 	"context"
-	"errors"
+	"net/http"
 	"time"
 
 	"github.com/MochamadAkbar/go-restful/api"
-	"github.com/MochamadAkbar/go-restful/common"
+	commonErr "github.com/MochamadAkbar/go-restful/common/errors"
+	commonJwt "github.com/MochamadAkbar/go-restful/common/jwt"
 	"github.com/MochamadAkbar/go-restful/entity"
+	"github.com/MochamadAkbar/go-restful/exception"
 	"github.com/MochamadAkbar/go-restful/repository"
 	"github.com/golang-jwt/jwt/v4"
 	"golang.org/x/crypto/bcrypt"
@@ -18,91 +20,80 @@ const (
 	Salt = 4
 )
 
-type IUserUsecase interface {
+type UserUsecase interface {
 	Register(ctx context.Context, user *entity.User) (api.UserResponse, error)
 	Login(ctx context.Context, user *entity.User) (api.UserResponse, error)
 }
 
-type UserUsecase struct {
-	Repository repository.IUserRepository
+type UserUsecaseImpl struct {
+	Repository repository.UserRepository
 }
 
-func InitUseCase(repository repository.IUserRepository) *UserUsecase {
-	return &UserUsecase{
+func NewUserUsecase(repository repository.UserRepository) UserUsecase {
+	return &UserUsecaseImpl{
 		Repository: repository,
 	}
 }
 
-func (usecase *UserUsecase) Register(ctx context.Context, user *entity.User) (api.UserResponse, error) {
-	expiresIn := time.Now().Add(time.Duration(1) * time.Minute).Unix()
-
+func (usecase *UserUsecaseImpl) Register(ctx context.Context, user *entity.User) (api.UserResponse, error) {
 	var resp api.UserResponse
+	expiresIn := time.Now().Add(time.Duration(1) * time.Minute).Unix()
 
 	hash, err := bcrypt.GenerateFromPassword([]byte(user.Password), Salt)
 	if err != nil {
-		return resp, err
+		return resp, commonErr.NewErrHTTP(http.StatusInternalServerError, err.Error())
 	}
 
 	user.Password = string(hash)
 
-	ok := usecase.Repository.Register(ctx, user)
-
-	if !ok {
-		return resp, errors.New("test")
+	row, err := usecase.Repository.Register(ctx, user)
+	if err != nil {
+		return resp, exception.NewException(err.Error())
 	}
 
-	uuid, ok := usecase.Repository.Login(ctx, user)
-
-	if !ok {
-		return resp, errors.New("test")
-	}
-
-	token, err := common.JwtClaims(
+	token, err := commonJwt.JwtClaims(
 		jwt.SigningMethodHS256,
 		jwt.MapClaims{
-			"user_id":   uuid,
+			"user_id":   row.ID,
 			"expiresIn": expiresIn,
 		},
 		[]byte("487f17ff01c0753d6ef97593cbdeb476de7b5420c3006a4ac2c401b09187df7a"))
 	if err != nil {
-		panic(err)
+		return resp, commonErr.NewErrHTTP(http.StatusInternalServerError, err.Error())
 	}
 
-	resp.UserID = uuid
+	resp.UserID = row.ID
 	resp.Token = token
 	resp.ExpiresIn = expiresIn
 
 	return resp, nil
 }
 
-func (usecase *UserUsecase) Login(ctx context.Context, user *entity.User) (api.UserResponse, error) {
+func (usecase *UserUsecaseImpl) Login(ctx context.Context, user *entity.User) (api.UserResponse, error) {
+	var resp api.UserResponse
 	expiresIn := time.Now().Add(time.Duration(1) * time.Minute).Unix()
 
-	var resp api.UserResponse
-
-	uuid, ok := usecase.Repository.Login(ctx, user)
-
-	if !ok {
-		return resp, errors.New("test")
+	row, err := usecase.Repository.Login(ctx, user)
+	if err != nil {
+		return resp, commonErr.NewErrHTTP(http.StatusNotFound, "User not found")
 	}
 
-	token, err := common.JwtClaims(
+	err = bcrypt.CompareHashAndPassword([]byte(row.Password), []byte(user.Password))
+	if err != nil {
+		return resp, commonErr.NewErrHTTP(http.StatusUnauthorized, "Invalid Credentials")
+	}
+	token, err := commonJwt.JwtClaims(
 		jwt.SigningMethodHS256,
 		jwt.MapClaims{
-			"user_id":    uuid,
+			"user_id":    row.ID,
 			"expires_in": expiresIn,
 		},
 		[]byte("487f17ff01c0753d6ef97593cbdeb476de7b5420c3006a4ac2c401b09187df7a"))
 	if err != nil {
-		panic(err)
+		return resp, commonErr.NewErrHTTP(http.StatusInternalServerError, err.Error())
 	}
 
-	_, err = common.JwtValidate(common.HMAC, token, []byte("487f17ff01c0753d6ef97593cbdeb476de7b5420c3006a4ac2c401b09187df7a"))
-	if err != nil {
-		panic(err)
-	}
-
-	resp.UserID = uuid
+	resp.UserID = row.ID
 	resp.Token = token
 	resp.ExpiresIn = expiresIn
 

@@ -8,37 +8,38 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
-type IUserRepository interface {
-	Register(ctx context.Context, user *entity.User) bool
-	Login(ctx context.Context, user *entity.User) (string, bool)
+type UserRepository interface {
+	Register(ctx context.Context, user *entity.User) (entity.User, error)
+	Login(ctx context.Context, user *entity.User) (entity.User, error)
 }
 
-type UserRepository struct {
+type UserRepositoryImpl struct {
 	Conn *pgxpool.Pool
 }
 
-func InitRepository(conn *pgxpool.Pool) *UserRepository {
-	return &UserRepository{Conn: conn}
+func NewUserRepository(conn *pgxpool.Pool) UserRepository {
+	return &UserRepositoryImpl{Conn: conn}
 }
 
-func (repository *UserRepository) Register(ctx context.Context, user *entity.User) bool {
-	statement := `INSERT INTO "users" ("name", "email", "password") VALUES($1, $2, $3);`
-	_, err := repository.Conn.Exec(ctx, statement, user.Name, user.Email, user.Password)
+func (repository *UserRepositoryImpl) Register(ctx context.Context, user *entity.User) (entity.User, error) {
+	var row entity.User
+	statement := `INSERT INTO "users" ("name", "email", "password") VALUES($1, $2, $3) RETURNING "id";`
+	err := repository.Conn.QueryRow(ctx, statement, user.Name, user.Email, user.Password).Scan(&row.ID)
 	if err != nil {
-		panic(err.Error())
+		return row, err
 	}
 
-	return true
+	return row, nil
 }
 
-func (repository *UserRepository) Login(ctx context.Context, user *entity.User) (string, bool) {
-	statement := `SELECT "id" FROM "users" WHERE "email" = $1;`
-	var ID string
+func (repository *UserRepositoryImpl) Login(ctx context.Context, user *entity.User) (entity.User, error) {
+	var row entity.User
+	statement := `SELECT "id", "email", "password" FROM "users" WHERE "email" = $1;`
 	err := repository.Conn.QueryRow(ctx, statement, user.Email).
-		Scan(&ID)
+		Scan(&row.ID, &row.Email, &row.Password)
 	if err != nil {
-		panic(err.Error())
+		return row, err
 	}
 
-	return ID, true
+	return row, nil
 }

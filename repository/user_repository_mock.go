@@ -11,22 +11,24 @@ type UserRepositoryMock struct {
 	Mock mock.Mock
 }
 
-func (repository *UserRepositoryMock) Register(ctx context.Context, user *entity.User) bool {
+func (repository *UserRepositoryMock) Register(_ context.Context, user *entity.User) (entity.User, error) {
 	args := repository.Mock.Called(user)
 
 	if args.Get(0) == nil {
-		return false
+		return entity.User{}, args.Error(1)
 	} else {
-		return true
+		result := args.Get(0).(entity.User)
+		return result, nil
 	}
 }
 
-func (repository *UserRepositoryMock) Login(ctx context.Context, user *entity.User) (string, bool) {
+func (repository *UserRepositoryMock) Login(ctx context.Context, user *entity.User) (entity.User, error) {
 	args := repository.Mock.Called(user)
 
 	if args.Get(0) == nil {
-		return "", false
+		return entity.User{}, args.Error(1)
 	} else {
-		return "UUID", true
+		result := args.Get(0).(entity.User)
+		return result, nil
 	}
 }
