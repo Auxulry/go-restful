@@ -23,12 +23,13 @@ func init() {
 
 func main() {
 	ctx := context.Background()
-	urlString := fmt.Sprintf("postgres://%s:%s@%s:%s/%s",
+	urlString := fmt.Sprintf("postgres://%s:%s@%s:%s/%s?sslmode=%s",
 		os.Getenv("DB_USERNAME"),
 		os.Getenv("DB_PASSWORD"),
 		os.Getenv("DB_HOST"),
 		os.Getenv("DB_PORT"),
-		os.Getenv("DB_NAME"))
+		os.Getenv("DB_NAME"),
+		os.Getenv("DB_SSLMODE"))
 
 	db := config.NewDB(ctx, urlString)
 	defer db.Close()
