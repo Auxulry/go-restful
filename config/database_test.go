@@ -26,7 +26,7 @@ func InitDBTest(ctx context.Context, url string) (*pgxpool.Pool, error) {
 func TestConnectionSuccess(t *testing.T) {
 	t.Run("Test Scenario DB Connection Success", func(t *testing.T) {
 		ctx := context.Background()
-		url := fmt.Sprintf("postgres://%s:%s@%s:%s/%s", Username, Password, Hostname, Port, Dbname)
+		url := fmt.Sprintf("postgres://%s:%s@%s:%s/%s?sslmode=disable", Username, Password, Hostname, Port, Dbname)
 
 		pool, err := InitDBTest(ctx, url)
 		defer pool.Close()
@@ -41,7 +41,7 @@ func TestConnectionSuccess(t *testing.T) {
 func TestConnectionFailed(t *testing.T) {
 	t.Run("Test Scenario DB Connection Failed", func(t *testing.T) {
 		ctx := context.Background()
-		url := fmt.Sprintf("postgres://%s:%s@%s:%s/%s", "must_failed", "Password", Hostname, Port, "123")
+		url := fmt.Sprintf("postgres://%s:%s@%s:%s/%s?sslmode=disable", "must_failed", "Password", Hostname, Port, "123")
 
 		pool, err := InitDBTest(ctx, url)
 		defer pool.Close()
